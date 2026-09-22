@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>植物氣體交換大師 Plant Gas Exchange Master</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Noto+Sans+HK:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans HK', 'Fredoka', sans-serif;
+            background-color: #f0fdf4;
+        }
+        .bubble-particle {
+            animation: floatGas 3s infinite ease-in-out;
+        }
+        @keyframes floatGas {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-8px) scale(1.05); }
+        }
+        .pulse-light {
+            animation: pulseGlow 2s infinite alternate;
+        }
+        @keyframes pulseGlow {
+            from { filter: drop-shadow(0 0 5px rgba(253, 224, 71, 0.6)); }
+            to { filter: drop-shadow(0 0 20px rgba(250, 204, 21, 0.9)); }
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col">
+
+    <div id="app" class="max-w-5xl mx-auto w-full p-3 sm:p-6 flex-1 flex flex-col">
+        
+        <!-- Header & Nav -->
+        <header class="bg-white rounded-2xl p-4 shadow-md border-2 border-emerald-200 mb-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center text-white text-2xl shadow">
+                    🌱
+                </div>
+                <div>
+                    <h1 class="text-xl sm:text-2xl font-bold text-emerald-800 leading-tight">
+                        植物氣體交換大師
+                    </h1>
+                    <p class="text-xs sm:text-sm text-emerald-600 font-medium">
+                        Plant Gas Exchange Master • 中英雙語闖關遊戲
+                    </p>
+                </div>
+            </div>
+
+            <!-- Score & Badges -->
+            <div class="flex items-center gap-4 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200">
+                <div class="text-center">
+                    <span class="text-xs text-emerald-600 block font-semibold">得分 Score</span>
+                    <span class="text-xl font-black text-amber-500"><i class="fa-solid fa-star mr-1"></i>{{ score }}</span>
+                </div>
+                <div class="h-8 w-px bg-emerald-200"></div>
+                <div class="text-center">
+                    <span class="text-xs text-emerald-600 block font-semibold">徽章 Badges</span>
+                    <span class="text-sm font-bold text-emerald-700">{{ badges.length }} / 3</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="grid grid-cols-3 gap-2 mb-4">
+            <button @click="currentTab = 'lab'" 
+                :class="currentTab === 'lab' ? 'bg-emerald-600 text-white shadow-lg scale-[1.02]' : 'bg-white text-emerald-800 hover:bg-emerald-50'"
+                class="py-3 px-2 rounded-xl font-bold text-xs sm:text-base transition-all duration-200 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 border-2 border-emerald-200">
+                <i class="fa-solid fa-flask text-lg"></i>
+                <span>1. 互動實驗室 <span class="text-xs opacity-80 block sm:inline">(Lab)</span></span>
+            </button>
+            
+            <button @click="currentTab = 'formula'" 
+                :class="currentTab === 'formula' ? 'bg-emerald-600 text-white shadow-lg scale-[1.02]' : 'bg-white text-emerald-800 hover:bg-emerald-50'"
+                class="py-3 px-2 rounded-xl font-bold text-xs sm:text-base transition-all duration-200 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 border-2 border-emerald-200">
+                <i class="fa-solid fa-puzzle-piece text-lg"></i>
+                <span>2. 答題3步曲 <span class="text-xs opacity-80 block sm:inline">(Formula)</span></span>
+            </button>
+
+            <button @click="currentTab = 'quiz'" 
+                :class="currentTab === 'quiz' ? 'bg-emerald-600 text-white shadow-lg scale-[1.02]' : 'bg-white text-emerald-800 hover:bg-emerald-50'"
+                class="py-3 px-2 rounded-xl font-bold text-xs sm:text-base transition-all duration-200 flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-2 border-2 border-emerald-200">
+                <i class="fa-solid fa-pen-to-square text-lg"></i>
+                <span>3. 試題大挑戰 <span class="text-xs opacity-80 block sm:inline">(Exam)</span></span>
+            </button>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 bg-white rounded-2xl shadow-lg border-2 border-emerald-100 p-4 sm:p-6 mb-4">
+            
+            <div v-if="currentTab === 'lab'" class="space-y-6">
+                <!-- Instruction Header -->
+                <div class="bg-amber-50 border-l-4 border-amber-400 p-3.5 rounded-r-xl">
+                    <h2 class="font-bold text-amber-900 text-sm sm:text-base flex items-center gap-2">
+                        <i class="fa-solid fa-lightbulb"></i> 實驗目標 Target: 理解「淨 (Net)」氣體交換的概念
+                    </h2>
+                    <p class="text-xs sm:text-sm text-amber-800 mt-1 leading-relaxed">
+                        拖動光強度滑塊，觀察：<strong>光合作用速率隨光度增加，但呼吸作用速率維持不變！</strong><br>
+                        <span class="text-amber-700 italic">Adjust light intensity to see how Photosynthesis changes while Respiration stays constant.</span>
+                    </p>
+                </div>
+
+                <!-- Light Controller & Presets -->
+                <div class="bg-slate-100 p-4 rounded-2xl border border-slate-200 max-w-2xl mx-auto space-y-3">
+                    <div class="flex justify-between items-center">
+                        <label class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                            <i class="fa-solid fa-sun text-amber-500 text-lg"></i>
+                            <span>調節環境光強度 (Light Intensity):</span>
+                        </label>
+                        <span class="font-black text-amber-600 bg-amber-100 px-3 py-1 rounded-full text-sm">
+                            {{ lightIntensity }}% {{ getLightLabel(lightIntensity) }}
+                        </span>
+                    </div>
+
+                    <!-- Slider -->
+                    <input type="range" min="0" max="100" v-model.number="lightIntensity" 
+                        class="w-full h-3 bg-slate-300 rounded-lg appearance-none cursor-pointer accent-amber-500">
+
+                    <!-- Preset Quick Buttons -->
+                    <div class="grid grid-cols-3 gap-2 pt-1">
+                        <button @click="lightIntensity = 0" 
+                            :class="lightIntensity === 0 ? 'bg-indigo-900 text-white font-bold ring-2 ring-indigo-400' : 'bg-white text-slate-700 border hover:bg-slate-50'"
+                            class="py-2 px-2 rounded-xl text-xs transition flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-moon text-indigo-300"></i>
+                            <span>1. 完全黑夜 (0%)</span>
+                        </button>
+                        <button @click="lightIntensity = 38" 
+                            :class="lightIntensity === 38 ? 'bg-amber-600 text-white font-bold ring-2 ring-amber-400' : 'bg-white text-slate-700 border hover:bg-slate-50'"
+                            class="py-2 px-2 rounded-xl text-xs transition flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-cloud-sun text-amber-500"></i>
+                            <span>2. 微光/晨昏 (38%)</span>
+                        </button>
+                        <button @click="lightIntensity = 100" 
+                            :class="lightIntensity === 100 ? 'bg-amber-500 text-white font-bold ring-2 ring-amber-300' : 'bg-white text-slate-700 border hover:bg-slate-50'"
+                            class="py-2 px-2 rounded-xl text-xs transition flex items-center justify-center gap-1">
+                            <i class="fa-solid fa-sun text-amber-200"></i>
+                            <span>3. 烈日強光 (100%)</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Process Rate Lever Comparison Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Photosynthesis Rate Bar -->
+                    <div class="bg-emerald-50 border-2 border-emerald-200 p-3.5 rounded-2xl shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-bold text-emerald-900 text-xs sm:text-sm">
+                                🌿 光合作用 (Photosynthesis)
+                            </span>
+                            <span class="text-xs font-black text-emerald-700 bg-emerald-200 px-2 py-0.5 rounded">
+                                速率 Rate: {{ psRate }} 單位
+                            </span>
+                        </div>
+                        <!-- Progress Bar -->
+                        <div class="w-full bg-emerald-200 h-4 rounded-full overflow-hidden mb-2">
+                            <div class="bg-emerald-500 h-full transition-all duration-300" :style="{ width: (psRate / 8 * 100) + '%' }"></div>
+                        </div>
+                        <p class="text-[11px] text-emerald-700">
+                            <strong>特點：</strong> 隨光強度增加而上升 (Increases with Light)
+                        </p>
+                    </div>
+
+                    <!-- Respiration Rate Bar -->
+                    <div class="bg-blue-50 border-2 border-blue-200 p-3.5 rounded-2xl shadow-sm">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-bold text-blue-900 text-xs sm:text-sm">
+                                🫁 呼吸作用 (Respiration)
+                            </span>
+                            <span class="text-xs font-black text-blue-700 bg-blue-200 px-2 py-0.5 rounded">
+                                速率 Rate: {{ respRate }} 單位 (固定)
+                            </span>
+                        </div>
+                        <!-- Progress Bar -->
+                        <div class="w-full bg-blue-200 h-4 rounded-full overflow-hidden mb-2">
+                            <div class="bg-blue-500 h-full transition-all duration-300" :style="{ width: (respRate / 8 * 100) + '%' }"></div>
+                        </div>
+                        <p class="text-[11px] text-blue-700">
+                            <strong>特點：</strong> <span class="text-rose-600 font-bold">保持不變 (Constant!)</span> 日夜不停進行
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Breakdown Table: Gross Uptake/Release vs Net Result -->
+                <div class="bg-slate-900 text-white p-4 rounded-2xl shadow-md border-2 border-slate-700 space-y-4">
+                    <h3 class="font-bold text-amber-400 text-sm sm:text-base border-b border-slate-700 pb-2 flex items-center justify-between">
+                        <span class="flex items-center gap-1.5">
+                            🔍 「總氣體量」對比 
+                            <i class="fa-solid fa-arrow-right text-amber-400 mx-1"></i> 
+                            「淨 (Net) 交換結果」
+                        </span>
+                        <span class="text-xs font-normal text-slate-300">Net = Difference (差額)</span>
+                    </h3>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
+                        <!-- CO2 Calculation Box -->
+                        <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 space-y-2">
+                            <div class="font-bold text-amber-300 text-xs uppercase tracking-wider flex items-center gap-1">
+                                <i class="fa-solid fa-flask"></i> 二氧化碳 (CO₂) 算式：
+                            </div>
+                            <div class="space-y-1 text-slate-200 text-xs">
+                                <div class="flex justify-between">
+                                    <span>光合作用<strong>吸入</strong>:</span>
+                                    <span class="font-bold text-emerald-400">+{{ psRate }} 個</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>呼吸作用<strong>釋出</strong>:</span>
+                                    <span class="font-bold text-rose-400">-{{ respRate }} 個</span>
+                                </div>
+                                <hr class="border-slate-700 my-1">
+                                <div class="flex justify-between text-sm font-bold">
+                                    <span>相抵後的淨結果 (Net):</span>
+                                    <span :class="psRate > respRate ? 'text-emerald-400' : (psRate < respRate ? 'text-amber-400' : 'text-slate-400')">
+                                        {{ getCO2NetText }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- O2 Calculation Box -->
+                        <div class="bg-slate-800 p-3 rounded-xl border border-slate-700 space-y-2">
+                            <div class="font-bold text-cyan-300 text-xs uppercase tracking-wider flex items-center gap-1">
+                                <i class="fa-solid fa-wind"></i> 氧氣 (O₂) 算式：
+                            </div>
+                            <div class="space-y-1 text-slate-200 text-xs">
+                                <div class="flex justify-between">
+                                    <span>光合作用<strong>釋出</strong>:</span>
+                                    <span class="font-bold text-cyan-400">+{{ psRate }} 個</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span>呼吸作用<strong>吸入</strong>:</span>
+                                    <span class="font-bold text-amber-400">-{{ respRate }} 個</span>
+                                </div>
+                                <hr class="border-slate-700 my-1">
+                                <div class="flex justify-between text-sm font-bold">
+                                    <span>相抵後的淨結果 (Net):</span>
+                                    <span :class="psRate > respRate ? 'text-cyan-400' : (psRate < respRate ? 'text-rose-400' : 'text-slate-400')">
+                                        {{ getO2NetText }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Leaf Flow -->
+                    <div :class="lightIntensity > 35 ? 'bg-gradient-to-r from-emerald-950 to-slate-900 border-emerald-800' : (lightIntensity === 0 ? 'bg-slate-950 border-indigo-900' : 'bg-slate-800 border-amber-800')"
+                         class="p-4 rounded-xl border flex flex-col sm:flex-row items-center justify-around gap-4">
+                        
+                        <div class="text-center">
+                            <span class="text-[11px] text-slate-400 block">目前狀態 Current State:</span>
+                            <span class="text-sm font-black text-amber-300">
+                                {{ psRate > respRate ? '☀️ 光合作用 > 呼吸作用' : (psRate < respRate ? '🌙 呼吸作用 > 光合作用 (或無光合作用)' : '⚖️ 光合作用 = 呼吸作用 (等償點)') }}
+                            </span>
+                        </div>
+
+                        <!-- Dynamic Arrow Result -->
+                        <div class="text-center font-bold text-xs sm:text-sm bg-slate-900/80 px-4 py-2 rounded-xl border border-slate-700">
+                            <div v-if="psRate > respRate" class="text-emerald-400 space-y-0.5">
+                                <div>📥 淨吸入 <strong>{{ psRate - respRate }} 個 CO₂</strong> (Net Uptake CO₂)</div>
+                                <div>📤 淨釋出 <strong>{{ psRate - respRate }} 個 O₂</strong> (Net Release O₂)</div>
+                            </div>
+                            <div v-else-if="psRate < respRate" class="text-amber-300 space-y-0.5">
+                                <div>📥 淨吸入 <strong>{{ respRate - psRate }} 個 O₂</strong> (Net Uptake O₂)</div>
+                                <div>📤 淨釋出 <strong>{{ respRate - psRate }} 個 CO₂</strong> (Net Release CO₂)</div>
+                            </div>
+                            <div v-else class="text-slate-300">
+                                ⚖️ 吸入量與釋出量完全相等！<br>
+                                <span class="text-amber-300 font-bold">無淨氣體交換 (No Net Gas Exchange)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Check Card -->
+                <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+                    <h3 class="font-bold text-emerald-900 text-sm mb-2">💡 概念速記卡 Key Summary:</h3>
+                    <ul class="text-xs sm:text-sm space-y-1.5 text-emerald-800">
+                        <li>• <strong>呼吸作用 (Respiration)</strong>：不論有光無光，速率保持 <strong>固定不變</strong>。</li>
+                        <li>• <strong>光合作用 (Photosynthesis)</strong>：光強度越高，速率 <strong>越高</strong>；無光時速率為 <strong>0</strong>。</li>
+                        <li>• <strong>「淨 (Net)」的概念</strong>：淨氣體交換 = 光合作用量 與 呼吸作用量 的 <strong>差額 (Difference)</strong>。</li>
+                        <li>• 氣體交換主要透過葉片表皮的 <strong>氣孔 (Stomata)</strong> 進行。</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div v-if="currentTab === 'formula'" class="space-y-6">
+                <div class="bg-indigo-50 border-l-4 border-indigo-500 p-3 rounded-r-xl">
+                    <h2 class="font-bold text-indigo-900 text-sm sm:text-base flex items-center gap-2">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> 考題解密：3分題黃金公式 (3-Mark Answering Formula)
+                    </h2>
+                    <p class="text-xs sm:text-sm text-indigo-800 mt-1">
+                        解答植物氣體交換題目（如：解釋植物在陽光下的氣體交換），必須包含以下 <strong>3個關鍵步驟</strong>！
+                    </p>
+                </div>
+
+                <!-- Formula Step Visualizer -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div class="bg-white p-3 rounded-xl border-2 border-indigo-200 shadow-sm relative">
+                        <span class="absolute -top-3 left-3 bg-indigo-600 text-white text-xs font-black px-2 py-0.5 rounded-full">第 1 分</span>
+                        <h4 class="font-bold text-indigo-900 text-sm mt-1">1. 指出環境與過程</h4>
+                        <p class="text-xs text-slate-600 mt-1">In light, plant carries out both Photosynthesis and Respiration.</p>
+                        <p class="text-xs font-semibold text-indigo-700 mt-2">在光照下，植物同時進行光合作用和呼吸作用。</p>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-xl border-2 border-indigo-200 shadow-sm relative">
+                        <span class="absolute -top-3 left-3 bg-indigo-600 text-white text-xs font-black px-2 py-0.5 rounded-full">第 2 分</span>
+                        <h4 class="font-bold text-indigo-900 text-sm mt-1">2. 比較相對速率</h4>
+                        <p class="text-xs text-slate-600 mt-1">Rate of Photosynthesis > Rate of Respiration.</p>
+                        <p class="text-xs font-semibold text-indigo-700 mt-2">光合作用速率較呼吸作用速率高。</p>
+                    </div>
+
+                    <div class="bg-white p-3 rounded-xl border-2 border-indigo-200 shadow-sm relative">
+                        <span class="absolute -top-3 left-3 bg-indigo-600 text-white text-xs font-black px-2 py-0.5 rounded-full">第 3 分</span>
+                        <h4 class="font-bold text-indigo-900 text-sm mt-1">3. 寫出淨結果</h4>
+                        <p class="text-xs text-slate-600 mt-1">Net uptake of CO₂ & net release of O₂.</p>
+                        <p class="text-xs font-semibold text-indigo-700 mt-2">結果是淨吸入 CO₂ 及淨釋出 O₂。</p>
+                    </div>
+                </div>
+
+                <!-- Interactive Sentence Puzzle Builder -->
+                <div class="bg-slate-50 p-4 sm:p-5 rounded-2xl border-2 border-slate-200">
+                    <h3 class="font-bold text-slate-800 text-sm sm:text-base mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-puzzle-piece text-amber-500"></i> 拖拽拼字練習：組合「陽光下氣體交換」的完美答案
+                    </h3>
+                    <p class="text-xs text-slate-600 mb-4">按正確順序點擊下面的句子積木，拼出完整的 3 分答案：</p>
+
+                    <!-- Selected Sentence Area -->
+                    <div class="min-h-[100px] bg-white p-3 rounded-xl border-2 border-dashed border-indigo-300 mb-4 flex flex-wrap gap-2 items-center">
+                        <span v-if="selectedBlocks.length === 0" class="text-xs text-slate-400 italic">
+                            請點擊下方區塊組合答案... (Click blocks below to construct answer)
+                        </span>
+                        <button v-for="(block, idx) in selectedBlocks" :key="idx" @click="removeBlock(idx)"
+                            class="bg-indigo-600 text-white text-xs sm:text-sm font-medium px-3 py-1.5 rounded-lg shadow flex items-center gap-1 hover:bg-indigo-700 transition">
+                            <span>{{ block.text }}</span>
+                            <i class="fa-solid fa-circle-xmark opacity-80 text-xs"></i>
+                        </button>
+                    </div>
+
+                    <!-- Available Word Blocks -->
+                    <div class="flex flex-wrap gap-2 mb-4">
+                        <button v-for="(block, idx) in availableBlocks" :key="block.id" @click="addBlock(block)"
+                            class="bg-white border-2 border-slate-300 text-slate-700 text-xs sm:text-sm font-medium px-3 py-2 rounded-xl shadow-sm hover:border-indigo-400 hover:bg-indigo-50 transition active:scale-95">
+                            {{ block.text }}
+                        </button>
+                    </div>
+
+                    <!-- Action Controls -->
+                    <div class="flex gap-3">
+                        <button @click="checkSentence" class="bg-emerald-600 text-white font-bold text-xs sm:text-sm px-5 py-2.5 rounded-xl shadow hover:bg-emerald-700 transition">
+                            <i class="fa-solid fa-check-double mr-1"></i> 檢查答案 (Check)
+                        </button>
+                        <button @click="resetBlocks" class="bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl hover:bg-slate-300 transition">
+                            <i class="fa-solid fa-rotate-left mr-1"></i> 重置 (Reset)
+                        </button>
+                    </div>
+
+                    <!-- Result Feedback -->
+                    <div v-if="sentenceFeedback" :class="sentenceCorrect ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-rose-100 text-rose-900 border-rose-300'"
+                        class="mt-4 p-3 rounded-xl border font-bold text-xs sm:text-sm flex items-center gap-2">
+                        <i :class="sentenceCorrect ? 'fa-solid fa-circle-check text-emerald-600' : 'fa-solid fa-circle-xmark text-rose-600'" class="text-lg"></i>
+                        <span>{{ sentenceFeedback }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="currentTab === 'quiz'" class="space-y-6">
+                <!-- Level Selector -->
+                <div class="flex border-b border-slate-200 gap-4">
+                    <button @click="quizLevel = 1" :class="quizLevel === 1 ? 'border-b-4 border-emerald-600 text-emerald-800 font-bold' : 'text-slate-500'" class="pb-2 text-sm">
+                        程度 1：基礎概念題 (True / False)
+                    </button>
+                    <button @click="quizLevel = 2" :class="quizLevel === 2 ? 'border-b-4 border-emerald-600 text-emerald-800 font-bold' : 'text-slate-500'" class="pb-2 text-sm">
+                        程度 2：課本實戰題 (3分題)
+                    </button>
+                </div>
+
+                <!-- Level 1 Questions -->
+                <div v-if="quizLevel === 1" class="space-y-4">
+                    <div v-for="(q, index) in level1Questions" :key="index" class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <p class="font-bold text-slate-800 text-sm sm:text-base mb-1">
+                            Q{{ index + 1 }}. {{ q.titleZh }}
+                        </p>
+                        <p class="text-xs text-slate-500 mb-3 italic">{{ q.titleEn }}</p>
+                        
+                        <div class="flex gap-3">
+                            <button @click="answerL1(index, true)" 
+                                :class="q.userAnswer === true ? (q.userAnswer === q.correct ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white') : 'bg-white border text-slate-700'"
+                                class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-sm transition">
+                                <i class="fa-solid fa-check text-emerald-500 mr-1" v-if="q.userAnswer === undefined"></i> 正確 (True ✓)
+                            </button>
+                            <button @click="answerL1(index, false)" 
+                                :class="q.userAnswer === false ? (q.userAnswer === q.correct ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white') : 'bg-white border text-slate-700'"
+                                class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-sm transition">
+                                <i class="fa-solid fa-xmark text-rose-500 mr-1" v-if="q.userAnswer === undefined"></i> 錯誤 (False ✗)
+                            </button>
+                        </div>
+
+                        <!-- Feedback -->
+                        <div v-if="q.userAnswer !== undefined" class="mt-3 text-xs p-2 rounded-lg" :class="q.userAnswer === q.correct ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'">
+                            <strong>{{ q.userAnswer === q.correct ? '🎉 正確！' : '❌ 答錯了！' }}</strong> {{ q.explanation }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Level 2 Open Question (Textbook Scenario) -->
+                <div v-if="quizLevel === 2" class="space-y-5">
+                    <!-- Sub Tabs for Level 2 Scenarios -->
+                    <div class="flex gap-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
+                        <button @click="l2Scenario = 'light'" 
+                            :class="l2Scenario === 'light' ? 'bg-amber-500 text-white font-bold shadow' : 'text-slate-600 hover:bg-slate-200'"
+                            class="flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm transition flex items-center justify-center gap-1.5">
+                            <span>☀️ 題目 1：陽光下 (In Light)</span>
+                        </button>
+                        <button @click="l2Scenario = 'dark'" 
+                            :class="l2Scenario === 'dark' ? 'bg-indigo-900 text-white font-bold shadow' : 'text-slate-600 hover:bg-slate-200'"
+                            class="flex-1 py-2 px-3 rounded-lg text-xs sm:text-sm transition flex items-center justify-center gap-1.5">
+                            <span>🌙 題目 2：黑暗中 (In Darkness)</span>
+                        </button>
+                    </div>
+
+                    <!-- Scenario 1: Light -->
+                    <div v-if="l2Scenario === 'light'" class="space-y-4">
+                        <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 flex flex-col sm:flex-row gap-4">
+                            <div class="sm:w-1/3 flex flex-col items-center justify-center bg-white p-3 rounded-lg border border-amber-200">
+                                <!-- Window Plant Illustration -->
+                                <div class="text-5xl text-amber-500 my-2">🪴 ☀️</div>
+                                <span class="text-xs font-bold text-slate-600 text-center">溫暖晴朗的中午<br>(Warm sunny noon near window)</span>
+                            </div>
+                            <div class="sm:w-2/3">
+                                <span class="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">課本原題 (Sunny Noon)</span>
+                                <h3 class="font-bold text-slate-800 text-sm sm:text-base mt-2">
+                                    右圖的照片顯示一盆放在窗邊的植物。
+                                </h3>
+                                <p class="text-xs text-slate-600 mt-1">
+                                    (a) 指出在溫暖晴朗的中午，該植物會分別淨吸入和釋出哪種氣體，並解釋你的答案。(3分)
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Interactive Fill-in-the-blanks Scaffold -->
+                        <div class="bg-white p-4 rounded-xl border-2 border-emerald-200 space-y-4">
+                            <h4 class="font-bold text-emerald-900 text-sm">✍️ 答題鷹架（填空引導）：</h4>
+                            
+                            <div class="space-y-3 text-xs sm:text-sm text-slate-700">
+                                <!-- Line 1 -->
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span>1. 在晴朗的中午，植物會淨吸入</span>
+                                    <select v-model="l2Ans.gasIn" class="border-2 border-emerald-300 rounded-lg p-1 text-xs font-bold bg-emerald-50">
+                                        <option value="">--請選擇氣體--</option>
+                                        <option value="CO2">二氧化碳 (Carbon dioxide)</option>
+                                        <option value="O2">氧氣 (Oxygen)</option>
+                                    </select>
+                                    <span>，淨釋出</span>
+                                    <select v-model="l2Ans.gasOut" class="border-2 border-emerald-300 rounded-lg p-1 text-xs font-bold bg-emerald-50">
+                                        <option value="">--請選擇氣體--</option>
+                                        <option value="O2">氧氣 (Oxygen)</option>
+                                        <option value="CO2">二氧化碳 (Carbon dioxide)</option>
+                                    </select>。
+                                </div>
+
+                                <!-- Line 2 -->
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span>2. 因為在光照下，植物同時進行</span>
+                                    <select v-model="l2Ans.process" class="border-2 border-emerald-300 rounded-lg p-1 text-xs font-bold bg-emerald-50">
+                                        <option value="">--請選擇過程--</option>
+                                        <option value="both">光合作用和呼吸作用 (PS & Respiration)</option>
+                                        <option value="ps_only">只有光合作用 (Photosynthesis only)</option>
+                                    </select>。
+                                </div>
+
+                                <!-- Line 3 -->
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span>3. 且光合作用的速率較呼吸作用速率</span>
+                                    <select v-model="l2Ans.rate" class="border-2 border-emerald-300 rounded-lg p-1 text-xs font-bold bg-emerald-50">
+                                        <option value="">--請選擇速率比較--</option>
+                                        <option value="higher">較高 (Higher)</option>
+                                        <option value="lower">較低 (Lower)</option>
+                                    </select>。
+                                </div>
+
+                                <hr class="my-2 border-slate-200">
+
+                                <!-- Part B Question -->
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span>(b) 植物氣體交換主要透過葉表皮上的哪個構造進行？</span>
+                                    <select v-model="l2Ans.stoma" class="border-2 border-emerald-300 rounded-lg p-1 text-xs font-bold bg-emerald-50">
+                                        <option value="">--選擇構造--</option>
+                                        <option value="stomata">氣孔 (Stomata)</option>
+                                        <option value="vein">葉脈 (Vein)</option>
+                                        <option value="cuticle">角質層 (Cuticle)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button @click="checkLevel2" class="w-full bg-emerald-600 text-white font-bold py-2.5 rounded-xl shadow hover:bg-emerald-700 transition text-sm mt-3">
+                                <i class="fa-solid fa-paper-plane mr-1"></i> 提交答案 (Submit Answer)
+                            </button>
+
+                            <!-- Level 2 Feedback -->
+                            <div v-if="l2Result" class="p-3 rounded-xl border text-xs sm:text-sm font-bold" :class="l2Result.score === 4 ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-amber-100 text-amber-900 border-amber-300'">
+                                <div>得分：{{ l2Result.score }} / 4 分</div>
+                                <p class="font-normal mt-1">{{ l2Result.feedback }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scenario 2: Dark -->
+                    <div v-if="l2Scenario === 'dark'" class="space-y-4">
+                        <div class="bg-indigo-950 text-white p-4 rounded-xl border border-indigo-800 flex flex-col sm:flex-row gap-4">
+                            <div class="sm:w-1/3 flex flex-col items-center justify-center bg-indigo-900/80 p-3 rounded-lg border border-indigo-700">
+                                <!-- Dark Plant Illustration -->
+                                <div class="text-5xl text-indigo-300 my-2">🪴 🌙</div>
+                                <span class="text-xs font-bold text-indigo-200 text-center">完全黑暗的環境<br>(In Complete Darkness)</span>
+                            </div>
+                            <div class="sm:w-2/3">
+                                <span class="bg-indigo-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">新題型實戰 (Darkness Question)</span>
+                                <h3 class="font-bold text-amber-300 text-sm sm:text-base mt-2">
+                                    在黑暗中，植物會淨釋出哪種氣體？試解釋你的答案。(3分)
+                                </h3>
+                                <p class="text-xs text-indigo-200 mt-1 italic">
+                                    In darkness, which gas will the plant net release? Explain your answer.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Interactive Fill-in-the-blanks Scaffold for Darkness -->
+                        <div class="bg-white p-4 rounded-xl border-2 border-indigo-200 space-y-4">
+                            <h4 class="font-bold text-indigo-900 text-sm">✍️ 答題鷹架（黑暗環境 3 分答題步驟）：</h4>
+                            
+                            <div class="space-y-3 text-xs sm:text-sm text-slate-700">
+                                <!-- Step 1 -->
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span>1. 在黑暗中，光合作用會</span>
+                                    <select v-model="l2AnsDark.process" class="border-2 border-indigo-300 rounded-lg p-1 text-xs font-bold bg-indigo-50">
+                                        <option value="">--請選擇--</option>
+                                        <option value="stop">停止進行 (Stops)</option>
+                                        <option value="continue">繼續進行 (Continues)</option>
+                                    </select>
+                                    <span>，只有</span>
+                                    <select v-model="l2AnsDark.respiration" class="border-2 border-indigo-300 rounded-lg p-1 text-xs font-bold bg-indigo-50">
+                                        <option value="">--請選擇過程--</option>
+                                        <option value="resp_only">呼吸作用進行 (Respiration only)</option>
+                                        <option value="ps_only">光合作用進行 (Photosynthesis only)</option>
+                                    </select>。
+                                </div>
+
+                                <!-- Step 2 -->
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span>2. 植物因呼吸作用會吸入</span>
+                                    <select v-model="l2AnsDark.gasIn" class="border-2 border-indigo-300 rounded-lg p-1 text-xs font-bold bg-indigo-50">
+                                        <option value="">--請選擇氣體--</option>
+                                        <option value="O2">氧氣 (Oxygen)</option>
+                                        <option value="CO2">二氧化碳 (Carbon dioxide)</option>
+                                    </select>
+                                    <span>，並釋出</span>
+                                    <select v-model="l2AnsDark.gasOut" class="border-2 border-indigo-300 rounded-lg p-1 text-xs font-bold bg-indigo-50">
+                                        <option value="">--請選擇氣體--</option>
+                                        <option value="CO2">二氧化碳 (Carbon dioxide)</option>
+                                        <option value="O2">氧氣 (Oxygen)</option>
+                                    </select>。
+                                </div>
+
+                                <!-- Step 3 -->
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span>3. 結果，植物在黑暗中會<strong>淨釋出</strong></span>
+                                    <select v-model="l2AnsDark.netRelease" class="border-2 border-indigo-300 rounded-lg p-1 text-xs font-bold bg-indigo-50">
+                                        <option value="">--請選擇淨釋出氣體--</option>
+                                        <option value="CO2">二氧化碳 (Carbon dioxide)</option>
+                                        <option value="O2">氧氣 (Oxygen)</option>
+                                    </select>。
+                                </div>
+                            </div>
+
+                            <button @click="checkLevel2Dark" class="w-full bg-indigo-800 text-white font-bold py-2.5 rounded-xl shadow hover:bg-indigo-900 transition text-sm mt-3">
+                                <i class="fa-solid fa-paper-plane mr-1"></i> 提交黑暗題答案 (Submit Dark Answer)
+                            </button>
+
+                            <!-- Dark Question Feedback -->
+                            <div v-if="l2ResultDark" class="p-3 rounded-xl border text-xs sm:text-sm font-bold" :class="l2ResultDark.score === 3 ? 'bg-emerald-100 text-emerald-900 border-emerald-300' : 'bg-amber-100 text-amber-900 border-amber-300'">
+                                <div>得分：{{ l2ResultDark.score }} / 3 分</div>
+                                <p class="font-normal mt-1">{{ l2ResultDark.feedback }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="text-center text-xs text-emerald-700/70 py-2">
+            香港初中科學科專用輔助教材 • 植物的氣體交換 (Plant Gas Exchange)
+        </footer>
+    </div>
+
+    <script>
+        const { createApp, ref, computed } = Vue;
+
+        createApp({
+            setup() {
+                // Navigation & Progress State
+                const currentTab = ref('lab');
+                const score = ref(0);
+                const badges = ref([]);
+
+                // Tab 1: Lab Simulator State
+                const lightIntensity = ref(100);
+                const respRate = ref(3); // Respiration rate is constant (3 units)
+                
+                const psRate = computed(() => {
+                    return Math.round((lightIntensity.value / 100) * 8);
+                });
+
+                const getLightLabel = (val) => {
+                    if (val === 0) return '(黑暗 Complete Darkness)';
+                    if (val < 40) return '(微光 Dim Light)';
+                    if (val < 75) return '(中等光 Moderate Light)';
+                    return '(強光 Bright Light)';
+                };
+
+                const getCO2NetText = computed(() => {
+                    const diff = psRate.value - respRate.value;
+                    if (diff > 0) return `淨吸入 ${diff} 個 (Net Uptake ${diff})`;
+                    if (diff < 0) return `淨釋出 ${Math.abs(diff)} 個 (Net Release ${Math.abs(diff)})`;
+                    return '淨交換為 0 (Net Exchange = 0)';
+                });
+
+                const getO2NetText = computed(() => {
+                    const diff = psRate.value - respRate.value;
+                    if (diff > 0) return `淨釋出 ${diff} 個 (Net Release ${diff})`;
+                    if (diff < 0) return `淨吸入 ${Math.abs(diff)} 個 (Net Uptake ${Math.abs(diff)})`;
+                    return '淨交換為 0 (Net Exchange = 0)';
+                });
+
+                // Tab 2: Formula Sentence Puzzle State
+                const availableBlocks = ref([
+                    { id: 1, text: '在光照下，植物同時進行光合作用和呼吸作用。' },
+                    { id: 2, text: '光合作用速率較呼吸作用速率高。' },
+                    { id: 3, text: '結果是淨吸入 CO₂ 及淨釋出 O₂。' },
+                    { id: 4, text: '植物不需要氧氣進行呼吸作用。' },
+                    { id: 5, text: '在黑暗中光合作用速率加倍。' }
+                ]);
+                const selectedBlocks = ref([]);
+                const sentenceFeedback = ref('');
+                const sentenceCorrect = ref(false);
+
+                const addBlock = (block) => {
+                    selectedBlocks.value.push(block);
+                    availableBlocks.value = availableBlocks.value.filter(b => b.id !== block.id);
+                };
+
+                const removeBlock = (idx) => {
+                    const removed = selectedBlocks.value.splice(idx, 1)[0];
+                    availableBlocks.value.push(removed);
+                };
+
+                const resetBlocks = () => {
+                    availableBlocks.value = [
+                        { id: 1, text: '在光照下，植物同時進行光合作用和呼吸作用。' },
+                        { id: 2, text: '光合作用速率較呼吸作用速率高。' },
+                        { id: 3, text: '結果是淨吸入 CO₂ 及淨釋出 O₂。' },
+                        { id: 4, text: '植物不需要氧氣進行呼吸作用。' },
+                        { id: 5, text: '在黑暗中光合作用速率加倍。' }
+                    ];
+                    selectedBlocks.value = [];
+                    sentenceFeedback.value = '';
+                    sentenceCorrect.value = false;
+                };
+
+                const checkSentence = () => {
+                    const ids = selectedBlocks.value.map(b => b.id);
+                    if (ids.length === 3 && ids[0] === 1 && ids[1] === 2 && ids[2] === 3) {
+                        sentenceCorrect.value = true;
+                        sentenceFeedback.value = '🎉 太棒了！完美組合出 3 分滿分的解答邏輯！（+30分）';
+                        if (!badges.value.includes('Formula Master')) {
+                            badges.value.push('Formula Master');
+                            score.value += 30;
+                        }
+                    } else {
+                        sentenceCorrect.value = false;
+                        sentenceFeedback.value = '❌ 順序不正確或包含錯誤選項。提示：請按照「1.環境過程 ➔ 2.速率比較 ➔ 3.淨結果」排序！';
+                    }
+                };
+
+                // Tab 3: Quiz State
+                const quizLevel = ref(1);
+
+                const level1Questions = ref([
+                    {
+                        titleZh: '植物不需要從大氣吸入氧氣。',
+                        titleEn: 'Plants do not need to absorb oxygen from the atmosphere.',
+                        correct: false,
+                        userAnswer: undefined,
+                        explanation: '錯誤！植物在黑暗中（或光合作用速率小於呼吸作用時）需要從外界吸入氧氣進行呼吸作用。'
+                    },
+                    {
+                        titleZh: '如果呼吸作用速率較光合作用速率高，植物會淨釋出二氧化碳。',
+                        titleEn: 'If respiration rate is higher than photosynthesis rate, the plant will net release carbon dioxide.',
+                        correct: true,
+                        userAnswer: undefined,
+                        explanation: '正確！當呼吸作用（釋出CO₂）大於光合作用（消耗CO₂）時，相抵後會有淨二氧化碳釋出。'
+                    }
+                ]);
+
+                const answerL1 = (index, ans) => {
+                    const q = level1Questions.value[index];
+                    if (q.userAnswer === undefined) {
+                        q.userAnswer = ans;
+                        if (ans === q.correct) {
+                            score.value += 10;
+                        }
+                    } else {
+                        q.userAnswer = ans;
+                    }
+                };
+
+                // Level 2 Answers (Light)
+                const l2Scenario = ref('light');
+
+                const l2Ans = ref({
+                    gasIn: '',
+                    gasOut: '',
+                    process: '',
+                    rate: '',
+                    stoma: ''
+                });
+
+                const l2Result = ref(null);
+
+                // Level 2 Answers (Dark)
+                const l2AnsDark = ref({
+                    process: '',
+                    respiration: '',
+                    gasIn: '',
+                    gasOut: '',
+                    netRelease: ''
+                });
+
+                const l2ResultDark = ref(null);
+
+                const checkLevel2 = () => {
+                    let s = 0;
+                    let feedbackArr = [];
+
+                    if (l2Ans.value.gasIn === 'CO2' && l2Ans.value.gasOut === 'O2') {
+                        s += 1;
+                    } else {
+                        feedbackArr.push('氣體選擇錯誤：陽光下應淨吸入二氧化碳，淨釋出氧氣。');
+                    }
+
+                    if (l2Ans.value.process === 'both') {
+                        s += 1;
+                    } else {
+                        feedbackArr.push('過程錯誤：光照下植物「同時」進行光合作用和呼吸作用。');
+                    }
+
+                    if (l2Ans.value.rate === 'higher') {
+                        s += 1;
+                    } else {
+                        feedbackArr.push('速率錯誤：晴朗中午，光合作用速率較呼吸作用高。');
+                    }
+
+                    if (l2Ans.value.stoma === 'stomata') {
+                        s += 1;
+                    } else {
+                        feedbackArr.push('(b)小題錯誤：氣體交換主要透過「氣孔(Stomata)」進行。');
+                    }
+
+                    if (s === 4) {
+                        l2Result.value = {
+                            score: 4,
+                            feedback: '🎉 全對！你完全掌握了陽光下氣體交換的核心概念！（+40分）'
+                        };
+                        if (!badges.value.includes('Exam Master')) {
+                            badges.value.push('Exam Master');
+                            score.value += 40;
+                        }
+                    } else {
+                        l2Result.value = {
+                            score: s,
+                            feedback: '需要改進：' + feedbackArr.join(' ')
+                        };
+                    }
+                };
+
+                const checkLevel2Dark = () => {
+                    let s = 0;
+                    let feedbackArr = [];
+
+                    if (l2AnsDark.value.process === 'stop' && l2AnsDark.value.respiration === 'resp_only') {
+                        s += 1;
+                    } else {
+                        feedbackArr.push('過程錯誤：在黑暗中，光合作用會停止，只有呼吸作用進行。');
+                    }
+
+                    if (l2AnsDark.value.gasIn === 'O2' && l2AnsDark.value.gasOut === 'CO2') {
+                        s += 1;
+                    } else {
+                        feedbackArr.push('氣體流向錯誤：呼吸作用會吸入氧氣，並釋出二氧化碳。');
+                    }
+
+                    if (l2AnsDark.value.netRelease === 'CO2') {
+                        s += 1;
+                    } else {
+                        feedbackArr.push('淨結果錯誤：在黑暗中，植物會淨釋出二氧化碳 (CO2)。');
+                    }
+
+                    if (s === 3) {
+                        l2ResultDark.value = {
+                            score: 3,
+                            feedback: '🎉 太棒了！完美解答了黑暗環境下的氣體交換題目！（+30分）'
+                        };
+                        if (!badges.value.includes('Darkness Master')) {
+                            badges.value.push('Darkness Master');
+                            score.value += 30;
+                        }
+                    } else {
+                        l2ResultDark.value = {
+                            score: s,
+                            feedback: '提示：' + feedbackArr.join(' ')
+                        };
+                    }
+                };
+
+                return {
+                    currentTab,
+                    score,
+                    badges,
+                    lightIntensity,
+                    respRate,
+                    psRate,
+                    getLightLabel,
+                    getCO2NetText,
+                    getO2NetText,
+                    availableBlocks,
+                    selectedBlocks,
+                    addBlock,
+                    removeBlock,
+                    resetBlocks,
+                    checkSentence,
+                    sentenceFeedback,
+                    sentenceCorrect,
+                    quizLevel,
+                    level1Questions,
+                    answerL1,
+                    l2Scenario,
+                    l2Ans,
+                    l2Result,
+                    checkLevel2,
+                    l2AnsDark,
+                    l2ResultDark,
+                    checkLevel2Dark
+                };
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
