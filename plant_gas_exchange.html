@@ -45,7 +45,7 @@
                         植物氣體交換大師
                     </h1>
                     <p class="text-xs sm:text-sm text-emerald-600 font-medium">
-                        Plant Gas Exchange Master • 中英雙語闖關遊戲
+                        Plant Gas Exchange Master
                     </p>
                 </div>
             </div>
@@ -372,7 +372,7 @@
                         程度 1：基礎概念題 (True / False)
                     </button>
                     <button @click="quizLevel = 2" :class="quizLevel === 2 ? 'border-b-4 border-emerald-600 text-emerald-800 font-bold' : 'text-slate-500'" class="pb-2 text-sm">
-                        程度 2：課本實戰題 (3分題)
+                        程度 2：實戰題 (3分題)
                     </button>
                 </div>
 
@@ -426,35 +426,35 @@
                             <div class="sm:w-1/3 flex flex-col items-center justify-center bg-white p-3 rounded-lg border border-amber-200">
                                 <!-- Window Plant Illustration -->
                                 <div class="text-5xl text-amber-500 my-2">🪴 ☀️</div>
-                                <span class="text-xs font-bold text-slate-600 text-center">溫暖晴朗的中午<br>(Warm sunny noon near window)</span>
+                                <span class="text-xs font-bold text-slate-600 text-center">晴朗的中午<br>(Sunny noon near window)</span>
                             </div>
                             <div class="sm:w-2/3">
-                                <span class="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">課本原題 (Sunny Noon)</span>
+                                <span class="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded">晴朗的中午 (Sunny Noon)</span>
                                 <h3 class="font-bold text-slate-800 text-sm sm:text-base mt-2">
-                                    右圖的照片顯示一盆放在窗邊的植物。
+                                    一盆放在窗邊的植物。S potted plant is placed by a window.
                                 </h3>
                                 <p class="text-xs text-slate-600 mt-1">
-                                    (a) 指出在溫暖晴朗的中午，該植物會分別淨吸入和釋出哪種氣體，並解釋你的答案。(3分)
+                                    (a) 指出在溫暖晴朗的中午，該植物會分別淨吸入和釋出哪種氣體，並解釋你的答案。(3分) State which gas the plant net absorbs and net releases respectively at a sunny noon. Explain your answer.
                                 </p>
                             </div>
                         </div>
 
                         <!-- Interactive Fill-in-the-blanks Scaffold -->
                         <div class="bg-white p-4 rounded-xl border-2 border-emerald-200 space-y-4">
-                            <h4 class="font-bold text-emerald-900 text-sm">✍️ 答題鷹架（填空引導）：</h4>
+                            <h4 class="font-bold text-emerald-900 text-sm">✍️ 答題指引：</h4>
                             
                             <div class="space-y-3 text-xs sm:text-sm text-slate-700">
                                 <!-- Line 1 -->
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <span>1. 在晴朗的中午，植物會淨吸入</span>
+                                    <span>1. 植物會淨吸入 The plant net absorbs </span>
                                     <select v-model="l2Ans.gasIn" class="border-2 border-emerald-300 rounded-lg p-1 text-xs font-bold bg-emerald-50">
-                                        <option value="">--請選擇氣體--</option>
+                                        <option value="">--請選擇氣體(gas)--</option>
                                         <option value="CO2">二氧化碳 (Carbon dioxide)</option>
                                         <option value="O2">氧氣 (Oxygen)</option>
                                     </select>
                                     <span>，淨釋出</span>
                                     <select v-model="l2Ans.gasOut" class="border-2 border-emerald-300 rounded-lg p-1 text-xs font-bold bg-emerald-50">
-                                        <option value="">--請選擇氣體--</option>
+                                        <option value="">--請選擇氣體(gas)--</option>
                                         <option value="O2">氧氣 (Oxygen)</option>
                                         <option value="CO2">二氧化碳 (Carbon dioxide)</option>
                                     </select>。
@@ -462,19 +462,19 @@
 
                                 <!-- Line 2 -->
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <span>2. 因為在光照下，植物同時進行</span>
+                                    <span>2. 因為在光照下，植物同時進行 Under sunlight, plant carries out both</span>
                                     <select v-model="l2Ans.process" class="border-2 border-emerald-300 rounded-lg p-1 text-xs font-bold bg-emerald-50">
-                                        <option value="">--請選擇過程--</option>
-                                        <option value="both">光合作用和呼吸作用 (PS & Respiration)</option>
+                                        <option value="">--請選擇過程 (process)--</option>
+                                        <option value="both">光合作用和呼吸作用 (Photosynthesis & Respiration)</option>
                                         <option value="ps_only">只有光合作用 (Photosynthesis only)</option>
                                     </select>。
                                 </div>
 
                                 <!-- Line 3 -->
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <span>3. 且光合作用的速率較呼吸作用速率</span>
+                                    <span>3. 且光合作用的速率較呼吸作用速率 Compare to the rate of respiration, the rate of photosynthesis is </span>
                                     <select v-model="l2Ans.rate" class="border-2 border-emerald-300 rounded-lg p-1 text-xs font-bold bg-emerald-50">
-                                        <option value="">--請選擇速率比較--</option>
+                                        <option value="">--請選擇速率比較 (The rate is)--</option>
                                         <option value="higher">較高 (Higher)</option>
                                         <option value="lower">較低 (Lower)</option>
                                     </select>。
@@ -484,9 +484,9 @@
 
                                 <!-- Part B Question -->
                                 <div class="flex flex-wrap items-center gap-2">
-                                    <span>(b) 植物氣體交換主要透過葉表皮上的哪個構造進行？</span>
+                                    <span>(b) 植物氣體交換主要透過葉表皮上的哪個構造進行？Through which structure on the leaf epidermis does plant gas exchange mainly take place?</span>
                                     <select v-model="l2Ans.stoma" class="border-2 border-emerald-300 rounded-lg p-1 text-xs font-bold bg-emerald-50">
-                                        <option value="">--選擇構造--</option>
+                                        <option value="">--選擇構造 (structure_--</option>
                                         <option value="stomata">氣孔 (Stomata)</option>
                                         <option value="vein">葉脈 (Vein)</option>
                                         <option value="cuticle">角質層 (Cuticle)</option>
@@ -636,11 +636,11 @@
 
                 // Tab 2: Formula Sentence Puzzle State
                 const availableBlocks = ref([
-                    { id: 1, text: '在光照下，植物同時進行光合作用和呼吸作用。' },
-                    { id: 2, text: '光合作用速率較呼吸作用速率高。' },
-                    { id: 3, text: '結果是淨吸入 CO₂ 及淨釋出 O₂。' },
-                    { id: 4, text: '植物不需要氧氣進行呼吸作用。' },
-                    { id: 5, text: '在黑暗中光合作用速率加倍。' }
+                    { id: 1, text: '在光照下，植物同時進行光合作用和呼吸作用。In light, plant carries out both Photosynthesis and Respiration.' },
+                    { id: 2, text: '光合作用速率較呼吸作用速率高。Rate of Photosynthesis  is higher than the rate of Respiration.' },
+                    { id: 3, text: '植物淨吸入 CO₂ 及淨釋出 O₂。There is a net uptake of CO₂ & net release of O₂.' },
+                    { id: 4, text: '植物不需要氧氣進行呼吸作用。Plant does not need oxygen to carry out respiration.' },
+                    { id: 5, text: '在黑暗中光合作用速率加倍。The rate of photosynthesis speeds up in the dark.' }
                 ]);
                 const selectedBlocks = ref([]);
                 const sentenceFeedback = ref('');
