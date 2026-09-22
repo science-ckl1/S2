@@ -95,11 +95,11 @@
                 <!-- Instruction Header -->
                 <div class="bg-amber-50 border-l-4 border-amber-400 p-3.5 rounded-r-xl">
                     <h2 class="font-bold text-amber-900 text-sm sm:text-base flex items-center gap-2">
-                        <i class="fa-solid fa-lightbulb"></i> 實驗目標 Target: 理解「淨 (Net)」氣體交換的概念
+                        <i class="fa-solid fa-lightbulb"></i> 目標 : 理解氣體交換的概念
                     </h2>
                     <p class="text-xs sm:text-sm text-amber-800 mt-1 leading-relaxed">
-                        拖動光強度滑塊，觀察：<strong>光合作用速率隨光度增加，但呼吸作用速率維持不變！</strong><br>
-                        <span class="text-amber-700 italic">Adjust light intensity to see how Photosynthesis changes while Respiration stays constant.</span>
+                        拖動光強度滑塊，觀察：<strong>光合作用速率隨光強度增加，但呼吸作用速率維持不變！</strong><br>
+                        <span class="text-amber-700 italic">Adjust light intensity to see how rate of photosynthesis changes while respiration stays constant.</span>
                     </p>
                 </div>
 
@@ -108,7 +108,7 @@
                     <div class="flex justify-between items-center">
                         <label class="font-bold text-slate-800 text-sm flex items-center gap-2">
                             <i class="fa-solid fa-sun text-amber-500 text-lg"></i>
-                            <span>調節環境光強度 (Light Intensity):</span>
+                            <span>環境光強度 (Light Intensity):</span>
                         </label>
                         <span class="font-black text-amber-600 bg-amber-100 px-3 py-1 rounded-full text-sm">
                             {{ lightIntensity }}% {{ getLightLabel(lightIntensity) }}
@@ -125,19 +125,19 @@
                             :class="lightIntensity === 0 ? 'bg-indigo-900 text-white font-bold ring-2 ring-indigo-400' : 'bg-white text-slate-700 border hover:bg-slate-50'"
                             class="py-2 px-2 rounded-xl text-xs transition flex items-center justify-center gap-1">
                             <i class="fa-solid fa-moon text-indigo-300"></i>
-                            <span>1. 完全黑夜 (0%)</span>
+                            <span>1. 黑暗 darkness (0%)</span>
                         </button>
                         <button @click="lightIntensity = 38" 
                             :class="lightIntensity === 38 ? 'bg-amber-600 text-white font-bold ring-2 ring-amber-400' : 'bg-white text-slate-700 border hover:bg-slate-50'"
                             class="py-2 px-2 rounded-xl text-xs transition flex items-center justify-center gap-1">
                             <i class="fa-solid fa-cloud-sun text-amber-500"></i>
-                            <span>2. 微光/晨昏 (38%)</span>
+                            <span>2. 弱光 dim light (38%)</span>
                         </button>
                         <button @click="lightIntensity = 100" 
                             :class="lightIntensity === 100 ? 'bg-amber-500 text-white font-bold ring-2 ring-amber-300' : 'bg-white text-slate-700 border hover:bg-slate-50'"
                             class="py-2 px-2 rounded-xl text-xs transition flex items-center justify-center gap-1">
                             <i class="fa-solid fa-sun text-amber-200"></i>
-                            <span>3. 烈日強光 (100%)</span>
+                            <span>3. 強光 strong light (100%)</span>
                         </button>
                     </div>
                 </div>
@@ -159,7 +159,7 @@
                             <div class="bg-emerald-500 h-full transition-all duration-300" :style="{ width: (psRate / 8 * 100) + '%' }"></div>
                         </div>
                         <p class="text-[11px] text-emerald-700">
-                            <strong>特點：</strong> 隨光強度增加而上升 (Increases with Light)
+                            <strong>特點：</strong> 隨光強度增加而上升 (Increases with light intensity)
                         </p>
                     </div>
 
@@ -178,7 +178,7 @@
                             <div class="bg-blue-500 h-full transition-all duration-300" :style="{ width: (respRate / 8 * 100) + '%' }"></div>
                         </div>
                         <p class="text-[11px] text-blue-700">
-                            <strong>特點：</strong> <span class="text-rose-600 font-bold">保持不變 (Constant!)</span> 日夜不停進行
+                            <strong>特點：</strong> <span class="text-rose-600 font-bold">保持不變 (Remains unchanged!)</span> 24 hrs 不停進行
                         </p>
                     </div>
                 </div>
@@ -187,11 +187,11 @@
                 <div class="bg-slate-900 text-white p-4 rounded-2xl shadow-md border-2 border-slate-700 space-y-4">
                     <h3 class="font-bold text-amber-400 text-sm sm:text-base border-b border-slate-700 pb-2 flex items-center justify-between">
                         <span class="flex items-center gap-1.5">
-                            🔍 「總氣體量」對比 
+                            🔍 光合作用速率及呼吸作用速率的差異(Difference in the rate of photosynthesis and respiarion)  
                             <i class="fa-solid fa-arrow-right text-amber-400 mx-1"></i> 
-                            「淨 (Net) 交換結果」
+                            「淨 」吸入/釋出CO₂/O₂
                         </span>
-                        <span class="text-xs font-normal text-slate-300">Net = Difference (差額)</span>
+                        
                     </h3>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
@@ -202,11 +202,11 @@
                             </div>
                             <div class="space-y-1 text-slate-200 text-xs">
                                 <div class="flex justify-between">
-                                    <span>光合作用<strong>吸入</strong>:</span>
+                                    <span>光合作用<strong>吸入 (absorbs)</strong>:</span>
                                     <span class="font-bold text-emerald-400">+{{ psRate }} 個</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span>呼吸作用<strong>釋出</strong>:</span>
+                                    <span>呼吸作用<strong>釋出 (releases)</strong>:</span>
                                     <span class="font-bold text-rose-400">-{{ respRate }} 個</span>
                                 </div>
                                 <hr class="border-slate-700 my-1">
@@ -226,11 +226,11 @@
                             </div>
                             <div class="space-y-1 text-slate-200 text-xs">
                                 <div class="flex justify-between">
-                                    <span>光合作用<strong>釋出</strong>:</span>
+                                    <span>光合作用<strong>釋出 (releases)</strong>:</span>
                                     <span class="font-bold text-cyan-400">+{{ psRate }} 個</span>
                                 </div>
                                 <div class="flex justify-between">
-                                    <span>呼吸作用<strong>吸入</strong>:</span>
+                                    <span>呼吸作用<strong>吸入(absorbs)</strong>:</span>
                                     <span class="font-bold text-amber-400">-{{ respRate }} 個</span>
                                 </div>
                                 <hr class="border-slate-700 my-1">
@@ -251,7 +251,7 @@
                         <div class="text-center">
                             <span class="text-[11px] text-slate-400 block">目前狀態 Current State:</span>
                             <span class="text-sm font-black text-amber-300">
-                                {{ psRate > respRate ? '☀️ 光合作用 > 呼吸作用' : (psRate < respRate ? '🌙 呼吸作用 > 光合作用 (或無光合作用)' : '⚖️ 光合作用 = 呼吸作用 (等償點)') }}
+                                {{ psRate > respRate ? '☀️ 光合作用(photosnythesis) > 呼吸作用(respiration)' : (psRate < respRate ? '🌙 只進行呼吸作用 (Only carry out respiration)' : '⚖️ 光合作用(photosnythesis) = 呼吸作用(respiration) (補償點)') }}
                             </span>
                         </div>
 
@@ -474,7 +474,7 @@
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span>3. 且光合作用的速率較呼吸作用速率 Compare to the rate of respiration, the rate of photosynthesis is </span>
                                     <select v-model="l2Ans.rate" class="border-2 border-emerald-300 rounded-lg p-1 text-xs font-bold bg-emerald-50">
-                                        <option value="">--請選擇速率比較 --</option>
+                                        <option value="">--請選擇速率比較--</option>
                                         <option value="higher">較高 (Higher)</option>
                                         <option value="lower">較低 (Lower)</option>
                                     </select>。
@@ -615,7 +615,7 @@
 
                 const getLightLabel = (val) => {
                     if (val === 0) return '(黑暗 Complete Darkness)';
-                    if (val < 40) return '(微光 Dim Light)';
+                    if (val < 40) return '(弱光 Dim Light)';
                     if (val < 75) return '(中等光 Moderate Light)';
                     return '(強光 Bright Light)';
                 };
